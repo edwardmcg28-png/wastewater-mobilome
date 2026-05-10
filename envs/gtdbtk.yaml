@@ -1,0 +1,5 @@
+name: gtdbtk2
+channels:
+  - conda-forge
+  - bioconda
+prefix: /scratch/user/uqnzhai/conda_envs/gtdbtk2
