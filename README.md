@@ -180,14 +180,10 @@ Full results: `03_analysis/validate_all_findings.py`
 ### Finding 1: Enterobacteriaceae Mobile ARGs = 0 in Effluent
 ### 发现一：出水中肠杆菌科移动ARG为零
 
-**English**
-
 Enterobacteriaceae-associated mobile ARGs were completely absent from
 municipal effluent (0/301 hits; 95% upper bound <0.99%), despite
 Enterobacteriaceae remaining detectable among ARG-bearing hosts in
 29/61 effluent samples.
-
-**中文**
 
 尽管29/61个出水样本中仍可检测到肠杆菌科宿主携带ARG，出水移动组中
 肠杆菌科相关移动ARG完全缺失（0/301 hits；95%统计上限<0.99%）。
@@ -218,14 +214,10 @@ result     = sum(is_mobile AND is_entero AND category=="effluent")
 ### Finding 2: Mobilome BC=0.681 vs ARG-host BC=0.331
 ### 发现二：移动组BC（0.681）显著高于ARG宿主群落BC（0.331）
 
-**English**
-
 Bray-Curtis dissimilarity between influent and effluent was 2.1× higher
 for the mobilome (0.681) than for the ARG-bearing host community (0.331),
 indicating that the mobilome undergoes restructuring independent of
 underlying community change.
-
-**中文**
 
 进出水之间移动组的Bray-Curtis差异（0.681）是ARG携带宿主群落差异（0.331）
 的2.1倍，表明移动组发生了独立于群落变化的结构性重组。
@@ -258,13 +250,9 @@ BC_mob   = sum(|mob_inf - mob_eff|) / sum(mob_inf + mob_eff)       # = 0.681
 ### Finding 3: Gini Effluent = 0.345 (from Influent 0.538)
 ### 发现三：出水Gini系数=0.345（入水0.538）
 
-**English**
-
 The Gini coefficient of the mobilome declined from 0.538 (influent) to
 0.345 (effluent), representing 1.5× greater decentralisation than the
 ARG-bearing host community (Δ=−0.193 vs Δ=−0.126).
-
-**中文**
 
 移动组Gini系数从0.538（进水）降至0.345（出水），去中心化幅度（Δ=−0.193）
 是ARG携带宿主群落（Δ=−0.126）的1.5倍。
@@ -299,14 +287,10 @@ ratio      = 0.193 / 0.126 = 1.5×
 ### Finding 4: Escherichia 15.6% → 0% in Effluent Mobilome
 ### 发现四：Escherichia在出水移动组中从15.6%降至0%
 
-**English**
-
 Escherichia contributed 15.6% of the influent mobilome but was
 completely absent from the effluent mobilome (0%), while remaining
 detectable at 0.94% of ARG-bearing hosts in effluent. This indicates
 selective plasmid loss rather than host removal.
-
-**中文**
 
 Escherichia在进水移动组中占15.6%，但在出水移动组中完全消失（0%），
 同时在出水ARG携带宿主中仍可检测到（0.94%）。这表明发生的是质粒选择性
@@ -350,8 +334,6 @@ esc_argb_eff = (argb_eff.genus=="Escherichia").sum() / len(argb_eff) * 100
 
 ### Integrated Conclusion / 综合结论
 
-**English**
-
 Taken together, these four effluent findings are mutually consistent
 and mechanistically coherent:
 
@@ -364,8 +346,6 @@ and mechanistically coherent:
 This pattern cannot be explained by host removal, pipeline failure,
 or sampling bias. It points to selective clearance of plasmid-mediated
 resistance during wastewater treatment.
-
-**中文**
 
 这四个出水相关发现相互一致，机制上连贯：
 
