@@ -172,3 +172,213 @@ python3 03_analysis/validate_all_findings.py
 
 All 7 core manuscript findings are validated by this script.
 Full results: `03_analysis/validate_all_findings.py`
+
+---
+
+## Validation: All Effluent Findings / 出水结果完整验证
+
+### Finding 1: Enterobacteriaceae Mobile ARGs = 0 in Effluent
+### 发现一：出水中肠杆菌科移动ARG为零
+
+**English**
+
+Enterobacteriaceae-associated mobile ARGs were completely absent from
+municipal effluent (0/301 hits; 95% upper bound <0.99%), despite
+Enterobacteriaceae remaining detectable among ARG-bearing hosts in
+29/61 effluent samples.
+
+**中文**
+
+尽管29/61个出水样本中仍可检测到肠杆菌科宿主携带ARG，出水移动组中
+肠杆菌科相关移动ARG完全缺失（0/301 hits；95%统计上限<0.99%）。
+
+**Raw data / 原始数据**
+- RGI output: `data/ww_effluent_municipal/{sample}/rgi/{sample}.txt`
+- geNomad plasmid: `data/ww_effluent_municipal/{sample}/genomad/.../*plasmid_summary.tsv`
+- GTDB-Tk taxonomy: `data/ww_effluent_municipal/{sample}/gtdbtk/classify/gtdbtk.bac120.summary.tsv`
+
+**Calculation / 计算方式**
+```python
+is_mobile  = on_plasmid OR on_virus          # contig-level co-localisation
+is_entero  = genus in {"Escherichia","Klebsiella","Citrobacter",
+"Enterobacter","Serratia","Rahnella","Kluyvera"}
+result     = sum(is_mobile AND is_entero AND category=="effluent")
+**Intermediate file / 中间文件**
+`results/arg_analysis/rgi_with_mag_taxonomy.csv`
+
+**Why reliable / 为什么可信**
+1. Enterobacteriaceae ARE detected in effluent (49 chromosomal ARG hits, 29/61 samples) — not a host removal artefact / 宿主本身存在，排除宿主被完全去除的解释
+2. Other genera DO have mobile ARGs in effluent (301 total) — geNomad working normally / 其他属有移动ARG，说明pipeline正常运行
+3. Zero across 16 independent countries from different BioProjects — not a single-study artefact / 16个国家独立验证，排除单一研究的技术偏差
+4. Extended genus list (10 genera) also returns zero / 扩展genus列表同样为零
+5. 95% upper bound <0.99% — statistically negligible / 统计上限<0.99%
+
+---
+
+### Finding 2: Mobilome BC=0.681 vs ARG-host BC=0.331
+### 发现二：移动组BC（0.681）显著高于ARG宿主群落BC（0.331）
+
+**English**
+
+Bray-Curtis dissimilarity between influent and effluent was 2.1× higher
+for the mobilome (0.681) than for the ARG-bearing host community (0.331),
+indicating that the mobilome undergoes restructuring independent of
+underlying community change.
+
+**中文**
+
+进出水之间移动组的Bray-Curtis差异（0.681）是ARG携带宿主群落差异（0.331）
+的2.1倍，表明移动组发生了独立于群落变化的结构性重组。
+
+**Raw data / 原始数据**
+- Core file: `results/arg_analysis/rgi_with_mag_taxonomy.csv`
+- Columns used: `genus`, `is_mobile`, `on_plasmid`, `on_virus`, `category`
+
+**Calculation / 计算方式**
+```python
+ARG-bearing host profile
+argb_inf = genus proportion vector across all influent host-assigned ARG hits
+argb_eff = genus proportion vector across all effluent host-assigned ARG hits
+BC_argb  = sum(|argb_inf - argb_eff|) / sum(argb_inf + argb_eff)  # = 0.331Mobilome profile (mobile ARG hits only)
+mob_inf  = genus proportion vector across influent mobile ARG hits
+mob_eff  = genus proportion vector across effluent mobile ARG hits
+BC_mob   = sum(|mob_inf - mob_eff|) / sum(mob_inf + mob_eff)       # = 0.681
+**Intermediate file / 中间文件**
+`results/arg_analysis/bray_curtis_comparison.csv`
+
+**Why reliable / 为什么可信**
+1. Both calculations use identical methodology (Bray-Curtis on genus-level proportions) — directly comparable / 两个计算方法完全相同，直接可比
+2. ARG-bearing analysis uses all 2,983 effluent host-assigned hits — large sample / ARG宿主分析使用全部2983个有宿主分配的hits
+3. Mobilome analysis uses 301 effluent mobile hits — sufficient for BC / 移动组分析使用301个移动hits
+4. BC=0.331 for ARG-host confirms effluent community is not completely different from influent — the 0.681 is not driven by total community replacement / ARG宿主BC=0.331说明出水群落不是完全替换，0.681反映真实的结构重组
+5. Independently validated by `03_analysis/validate_all_findings.py` / 由验证脚本独立确认
+
+---
+
+### Finding 3: Gini Effluent = 0.345 (from Influent 0.538)
+### 发现三：出水Gini系数=0.345（入水0.538）
+
+**English**
+
+The Gini coefficient of the mobilome declined from 0.538 (influent) to
+0.345 (effluent), representing 1.5× greater decentralisation than the
+ARG-bearing host community (Δ=−0.193 vs Δ=−0.126).
+
+**中文**
+
+移动组Gini系数从0.538（进水）降至0.345（出水），去中心化幅度（Δ=−0.193）
+是ARG携带宿主群落（Δ=−0.126）的1.5倍。
+
+**Raw data / 原始数据**
+- Core file: `results/arg_analysis/rgi_with_mag_taxonomy.csv`
+
+**Calculation / 计算方式**
+```python
+def gini(x):
+x = np.sort(x[x>0]); n = len(x); idx = np.arange(1, n+1)
+return (2np.sum(idxx) - (n+1)np.sum(x)) / (nnp.sum(x))Influent mobilome
+mob_inf_counts = genus value_counts for influent mobile ARG hits
+gini_mob_inf   = gini(mob_inf_counts.values)  # = 0.538Effluent mobilome
+mob_eff_counts = genus value_counts for effluent mobile ARG hits
+gini_mob_eff   = gini(mob_eff_counts.values)  # = 0.345ARG-bearing host (baseline comparison)
+gini_argb_inf  = gini(influent ARG-bearing host genus counts)  # = 0.681
+gini_argb_eff  = gini(effluent ARG-bearing host genus counts)  # = 0.555delta_mob  = 0.345 - 0.538 = -0.193
+delta_argb = 0.555 - 0.681 = -0.126
+ratio      = 0.193 / 0.126 = 1.5×
+**Intermediate file / 中间文件**
+`results/arg_analysis/bray_curtis_comparison.csv` (contains all four Gini values)
+
+**Why reliable / 为什么可信**
+1. Gini coefficient is computed on the same genus-level distribution as all other analyses — no additional assumptions / 计算方式与其他分析完全一致，无额外假设
+2. Effluent Gini=0.345 is based on 301 mobile hits across 162 genera — sufficient sample size / 基于301个hits覆盖162个属
+3. Leave-one-out analysis for influent (0.531-0.541) confirms stability; same approach applicable to effluent / 进水的leave-one-out分析证实结果稳健
+4. The comparison (Δmob vs Δargb) uses same method for both layers — ratio is internally consistent / 比较使用完全相同的方法，比值内部一致
+
+---
+
+### Finding 4: Escherichia 15.6% → 0% in Effluent Mobilome
+### 发现四：Escherichia在出水移动组中从15.6%降至0%
+
+**English**
+
+Escherichia contributed 15.6% of the influent mobilome but was
+completely absent from the effluent mobilome (0%), while remaining
+detectable at 0.94% of ARG-bearing hosts in effluent. This indicates
+selective plasmid loss rather than host removal.
+
+**中文**
+
+Escherichia在进水移动组中占15.6%，但在出水移动组中完全消失（0%），
+同时在出水ARG携带宿主中仍可检测到（0.94%）。这表明发生的是质粒选择性
+丢失而非宿主消除。
+
+**Raw data / 原始数据**
+- Core file: `results/arg_analysis/rgi_with_mag_taxonomy.csv`
+- Bracken abundance: `results/bracken_genus_abundance.csv`
+
+**Calculation / 计算方式**
+```python
+**Calculation / 计算方式**
+```python
+# Influent
+mob_inf = rgi[(category==influent) & is_mobile & genus.notna()]
+esc_inf_pct = (mob_inf.genus=="Escherichia").sum() / len(mob_inf) * 100
+# → 158/1015 = 15.57%
+
+# Effluent
+mob_eff = rgi[(category==effluent) & is_mobile & genus.notna()]
+esc_eff_pct = (mob_eff.genus=="Escherichia").sum() / len(mob_eff) * 100
+# → 0/301 = 0.0%
+
+# Effluent ARG-bearing (not mobile)
+argb_eff = rgi[(category==effluent) & genus.notna()]
+esc_argb_eff = (argb_eff.genus=="Escherichia").sum() / len(argb_eff) * 100
+# → ~28/2983 = 0.94%
+```
+
+**Intermediate file / 中间文件**
+`results/arg_analysis/genus_level_shifts.csv`
+
+**Why reliable / 为什么可信**
+1. Escherichia IS detected in effluent ARG-bearing hosts (0.94%) — not a detection failure / Escherichia在出水ARG宿主中仍可检测到，排除检测失败
+2. 158 Escherichia mobile hits in influent confirm the genus is trackable / 进水158个hits确认该属可被追踪
+3. The dissociation between ARG-bearing (0.94%) and mobile (0%) is the key signal — same genus, same pipeline, different result for chromosomal vs plasmid-borne / ARG携带（0.94%）和移动（0%）的分离是关键信号
+4. Consistent with broader Enterobacteriaceae pattern (0/301) — not genus-specific noise / 与肠杆菌科总体模式一致（0/301），非单属噪音
+5. Cross-country consistency: zero across all 16 effluent-contributing countries / 跨国一致性：16个国家全部为零
+
+---
+
+### Integrated Conclusion / 综合结论
+
+**English**
+
+Taken together, these four effluent findings are mutually consistent
+and mechanistically coherent:
+
+- The mobilome restructures more than the host community (BC 0.681 vs 0.331)
+- This restructuring involves specific loss of plasmid-bearing Enterobacteriaceae
+- The statistical signature (0/301, <0.99% upper bound) is consistent across
+  16 countries from 51 independent BioProjects
+- The host community does not disappear — only the mobile fraction does
+
+This pattern cannot be explained by host removal, pipeline failure,
+or sampling bias. It points to selective clearance of plasmid-mediated
+resistance during wastewater treatment.
+
+**中文**
+
+这四个出水相关发现相互一致，机制上连贯：
+
+- 移动组的结构变化大于宿主群落（BC 0.681 vs 0.331）
+- 这种重组涉及肠杆菌科质粒携带ARG的特异性丢失
+- 统计信号（0/301，上限<0.99%）在16个国家、51个独立BioProject中一致
+- 宿主群落并未消失——只有移动组分消失了
+
+这一模式无法用宿主去除、pipeline故障或采样偏差来解释，
+指向污水处理过程中质粒介导耐药性的选择性清除。
+
+**Reproducibility / 复现**
+```bash
+python3 03_analysis/validate_all_findings.py
+# All 7 findings: ✅ PASS
+```
