@@ -16,7 +16,7 @@ import pandas as pd
 import numpy as np
 from scipy.stats import spearmanr
 
-RGI_PATH  = "/QRISdata/Q6636/sra_ww_mobilization/results/arg_analysis/rgi_with_mag_taxonomy.csv"
+RGI_PATH  = "/QRISdata/Q6636/sra_ww_mobilization/results/arg_analysis/rgi_with_mag_taxonomy_fixed.csv"
 META_PATH = "/QRISdata/Q6636/sra_ww_mobilization/results/sample_map_complete.tsv"
 BRACKEN_PATH = "/QRISdata/Q6636/sra_ww_mobilization/results/bracken_genus_abundance.csv"
 
