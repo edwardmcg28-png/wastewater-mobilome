@@ -362,3 +362,113 @@ resistance during wastewater treatment.
 python3 03_analysis/validate_all_findings.py
 # All 7 findings: ✅ PASS
 ```
+
+---
+
+## Data Integrity Audit / 数据完整性审计
+
+### Critical Bug Identified and Fixed / 发现并修复关键Bug
+
+**Date**: 2026-05-14  
+**Severity**: Critical
+
+**Issue / 问题**:
+The original `rgi_with_mag_taxonomy.csv` contained a bin_id naming
+collision: 70.5% of ARG hits (10,308/14,625) had taxonomy assigned
+from the wrong sample's MAG bin. This occurred because contig-to-bin
+mapping did not include sample-prefix in bin IDs (e.g., multiple
+samples all having "bin.60").
+
+原始整合文件中bin_id命名未包含样本前缀，导致70.5%的ARG hits的
+宿主分类数据来自错误样本的bin（不同样本都有"bin.60"等相同名称）。
+
+**Impact / 影响**:
+- ❌ All genus-based analyses potentially wrong (three-layer
+  enrichment, Gini, Enterobacteriaceae %)
+- ✅ Mobility flags (on_plasmid/on_virus) NOT affected — derived
+  from geNomad contig classification, independent of bin assignment
+- ✅ 0/301 Enterobacteriaceae effluent finding STILL VALID
+  (confirmed with correct-only subset: 0 Entero mobile hits)
+
+**Fix / 修复**:
+Rebuilding `contig_to_bin_mapping_fixed.csv` with
+`{sample_id}_{bin_name}` format. Job running on Bunya (Job 24670219).
+Output: `rgi_with_mag_taxonomy_fixed.csv`
+
+---
+
+## Other Confirmed Errors / 其他已确认错误
+
+| # | Location / 位置 | Error / 错误 | Fix / 修正 |
+|---|-----------------|--------------|------------|
+| 1 | 3.2 Results | Influent host-assigned 9,387 → **9,454** | Direct fix |
+| 2 | 3.2 Results | Effluent host-assigned 2,983 → **2,992** | Direct fix |
+| 3 | 3.1 + 2.1 | "five continents" → **four continents** | Direct fix |
+| 4 | 2.7.2 Methods | "high-quality MAGs" → **medium- and high-quality** | Direct fix |
+| 5 | 2.9.5 Methods | Gini null model described as within-sample permutation → **multinomial uniform across all genera** | Direct fix |
+| 6 | 3.6 Results | Bootstrap n=177 → **n=184** (minimum mechanism category) | Update after rebuild |
+| 7 | 3.4 Results | 1,514 mobile hits (all samples) used in municipal analysis → **1,316** (municipal mobile + host assigned) | Update after rebuild |
+
+---
+
+## Current Status / 当前状态
+
+- Rebuild job running: Bunya Job 24670219
+- Expected output: `rgi_with_mag_taxonomy_fixed.csv`
+- After rebuild: re-run `03_analysis/validate_all_findings.py`
+  with fixed file to confirm all 7 findings hold
+
+---
+
+## Data Integrity Audit / 数据完整性审计
+
+### Critical Bug Identified and Fixed / 发现并修复关键Bug
+
+**Date**: 2026-05-14  
+**Severity**: Critical
+
+**Issue / 问题**:
+The original `rgi_with_mag_taxonomy.csv` contained a bin_id naming
+collision: 70.5% of ARG hits (10,308/14,625) had taxonomy assigned
+from the wrong sample's MAG bin. This occurred because contig-to-bin
+mapping did not include sample-prefix in bin IDs (e.g., multiple
+samples all having "bin.60").
+
+原始整合文件中bin_id命名未包含样本前缀，导致70.5%的ARG hits的
+宿主分类数据来自错误样本的bin（不同样本都有"bin.60"等相同名称）。
+
+**Impact / 影响**:
+- ❌ All genus-based analyses potentially wrong (three-layer
+  enrichment, Gini, Enterobacteriaceae %)
+- ✅ Mobility flags (on_plasmid/on_virus) NOT affected — derived
+  from geNomad contig classification, independent of bin assignment
+- ✅ 0/301 Enterobacteriaceae effluent finding STILL VALID
+  (confirmed with correct-only subset: 0 Entero mobile hits)
+
+**Fix / 修复**:
+Rebuilding `contig_to_bin_mapping_fixed.csv` with
+`{sample_id}_{bin_name}` format. Job running on Bunya (Job 24670219).
+Output: `rgi_with_mag_taxonomy_fixed.csv`
+
+---
+
+## Other Confirmed Errors / 其他已确认错误
+
+| # | Location / 位置 | Error / 错误 | Fix / 修正 |
+|---|-----------------|--------------|------------|
+| 1 | 3.2 Results | Influent host-assigned 9,387 → **9,454** | Direct fix |
+| 2 | 3.2 Results | Effluent host-assigned 2,983 → **2,992** | Direct fix |
+| 3 | 3.1 + 2.1 | "five continents" → **four continents** | Direct fix |
+| 4 | 2.7.2 Methods | "high-quality MAGs" → **medium- and high-quality** | Direct fix |
+| 5 | 2.9.5 Methods | Gini null model described as within-sample permutation → **multinomial uniform across all genera** | Direct fix |
+| 6 | 3.6 Results | Bootstrap n=177 → **n=184** (minimum mechanism category) | Update after rebuild |
+| 7 | 3.4 Results | 1,514 mobile hits (all samples) used in municipal analysis → **1,316** (municipal mobile + host assigned) | Update after rebuild |
+
+---
+
+## Current Status / 当前状态
+
+- Rebuild job running: Bunya Job 24670219
+- Expected output: `rgi_with_mag_taxonomy_fixed.csv`
+- After rebuild: re-run `03_analysis/validate_all_findings.py`
+  with fixed file to confirm all 7 findings hold
